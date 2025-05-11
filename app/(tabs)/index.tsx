@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -57,7 +57,7 @@ export default function HomeScreen() {
         <ThemedText type="subtitle">Camera Demo</ThemedText>
         <TouchableOpacity 
           style={styles.cameraButton}
-          onPress={() => router.push('/cameraScreen')}
+          onPress={() => router.push('../cameraScreen')}
         >
           <ThemedText style={styles.cameraButtonText}>Open Camera</ThemedText>
         </TouchableOpacity>
