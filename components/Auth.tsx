@@ -1,4 +1,4 @@
-import { Button, Input } from '@rneui/themed'
+import { Button, TextInput } from 'react-native-paper'
 import React, { useState } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
 import { supabase } from '../lib/supabase'
@@ -37,31 +37,33 @@ export default function Auth() {
   return (
     <View style={styles.container}>
       <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Input
+        <TextInput
           label="Email"
-          leftIcon={{ type: 'font-awesome', name: 'envelope' }}
+          left={<TextInput.Icon icon="email" />}
           onChangeText={(text) => setEmail(text)}
           value={email}
           placeholder="email@address.com"
-          autoCapitalize={'none'}
+          autoCapitalize="none"
+          mode="outlined"
         />
       </View>
       <View style={styles.verticallySpaced}>
-        <Input
+        <TextInput
           label="Password"
-          leftIcon={{ type: 'font-awesome', name: 'lock' }}
+          left={<TextInput.Icon icon="lock" />}
           onChangeText={(text) => setPassword(text)}
           value={password}
           secureTextEntry={true}
           placeholder="Password"
-          autoCapitalize={'none'}
+          autoCapitalize="none"
+          mode="outlined"
         />
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button title="Sign in" disabled={loading} onPress={() => signInWithEmail()} />
+        <Button mode="contained" disabled={loading} onPress={() => signInWithEmail()}>Sign in</Button>
       </View>
       <View style={styles.verticallySpaced}>
-        <Button title="Sign up" disabled={loading} onPress={() => signUpWithEmail()} />
+        <Button mode="contained" disabled={loading} onPress={() => signUpWithEmail()}>Sign up</Button>
       </View>
     </View>
   )

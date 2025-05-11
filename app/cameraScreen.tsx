@@ -1,8 +1,9 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
-import { Camera, useCameraDevice, useCameraPermission, CameraPosition } from 'react-native-vision-camera';
 import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import React, { useCallback, useRef, useState } from 'react';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Camera, CameraPosition, useCameraDevice, useCameraPermission, useFrameProcessor } from 'react-native-vision-camera';
+import { Worklets } from 'react-native-worklets-core';
 
 export default function CameraScreen() {
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -10,6 +11,7 @@ export default function CameraScreen() {
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>('back');
   const device = useCameraDevice(cameraPosition);
   const camera = useRef<Camera>(null);
+  const [shouldCapture, setShouldCapture] = useState(false);
 
   // Request permission if not granted
   React.useEffect(() => {
@@ -18,18 +20,39 @@ export default function CameraScreen() {
     }
   }, [hasPermission, requestPermission]);
 
-  // Take photo function
-  const takePhoto = useCallback(async () => {
-    try {
-      if (camera.current) {
-        const photo = await camera.current.takePhoto();
-        Alert.alert('Photo taken!', `Photo saved at ${photo.path}`);
-      }
-    } catch (error) {
-      console.error('Failed to take photo:', error);
-      Alert.alert('Error', 'Failed to take photo');
+  // Handle captured frame
+  const handleFrameCaptured = useCallback((frameData: string) => {
+    // Just log the base64 preview of the frame to console
+    console.log('Captured frame data:', frameData.substring(0, 30) + '...');
+    Alert.alert('Frame captured!', 'Frame data logged to console');
+    // Reset the capture flag
+    setShouldCapture(false);
+  }, []);
+  
+  // Create a worklet function to call from the frame processor
+  const handleFrameCapturedJS = Worklets.createRunOnJS(handleFrameCaptured);
+
+  // Frame processor function
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
+    if (shouldCapture) {
+      // In a real implementation, you would use a plugin to convert the frame to a format
+      // that can be sent back to the JS thread. For example:
+      // const data = frameToJpeg(frame)
+      // or something similar depending on your plugin
+      
+      // For demonstration, we're creating mock frame data
+      const mockFrameData = `data:image/jpeg;base64,/9j/4AAQSkZ...`;
+      
+      // Use the worklet function to call back to the React thread
+      handleFrameCapturedJS(mockFrameData);
     }
-  }, [camera]);
+  }, [shouldCapture, handleFrameCapturedJS]);
+  
+  // Trigger frame capture
+  const captureFrame = useCallback(() => {
+    setShouldCapture(true);
+  }, []);
 
   // Toggle camera position
   const toggleCameraPosition = useCallback(() => {
@@ -87,8 +110,7 @@ export default function CameraScreen() {
           style={StyleSheet.absoluteFill}
           device={device}
           isActive={isActive}
-          photo={true}
-          video={false}
+          frameProcessor={frameProcessor}
         />
       )}
 
@@ -104,8 +126,8 @@ export default function CameraScreen() {
         </TouchableOpacity>
 
         {isActive && (
-          <TouchableOpacity style={styles.controlButton} onPress={takePhoto}>
-            <Text style={styles.buttonText}>Take Photo</Text>
+          <TouchableOpacity style={styles.controlButton} onPress={captureFrame}>
+            <Text style={styles.buttonText}>Capture Frame</Text>
           </TouchableOpacity>
         )}
 
