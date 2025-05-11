@@ -3,6 +3,7 @@ module.exports = function(api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
+      ['react-native-worklets-core/plugin'],
       // Add React Native reanimated plugin if needed
       'react-native-reanimated/plugin',
       // Enable module resolver for path aliases

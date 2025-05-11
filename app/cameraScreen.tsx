@@ -4,6 +4,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraPosition, useCameraDevice, useCameraPermission, useFrameProcessor } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
+import { crop } from 'vision-camera-cropper';
 
 export default function CameraScreen() {
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -36,19 +37,28 @@ export default function CameraScreen() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     if (shouldCapture) {
-      // In a real implementation, you would use a plugin to convert the frame to a format
-      // that can be sent back to the JS thread. For example:
-      // const data = frameToJpeg(frame)
-      // or something similar depending on your plugin
+      // Get the entire frame as base64 (100% of width/height)
+      const result = crop(frame, {
+        cropRegion: {
+          left: 0,
+          top: 0,
+          width: 100,
+          height: 100
+        },
+        includeImageBase64: true,
+        saveAsFile: false
+      });
       
-      // For demonstration, we're creating mock frame data
-      const mockFrameData = `data:image/jpeg;base64,/9j/4AAQSkZ...`;
-      
-      // Use the worklet function to call back to the React thread
-      handleFrameCapturedJS(mockFrameData);
+      // 检查 base64 是否存在，然后传递给 JS 线程
+      if (result.base64) {
+        handleFrameCapturedJS(result.base64);
+      } else {
+        // 如果没有 base64 数据，使用空字符串或错误消息
+        handleFrameCapturedJS('无法获取图像数据');
+      }
     }
   }, [shouldCapture, handleFrameCapturedJS]);
-  
+    
   // Trigger frame capture
   const captureFrame = useCallback(() => {
     setShouldCapture(true);
