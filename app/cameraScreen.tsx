@@ -1,3 +1,4 @@
+import { Skia } from '@shopify/react-native-skia';
 import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useRef, useState } from 'react';
@@ -5,7 +6,6 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraPosition, useCameraDevice, useCameraPermission, useFrameProcessor } from 'react-native-vision-camera';
 import { Worklets } from 'react-native-worklets-core';
 import { crop } from 'vision-camera-cropper';
-import { Skia } from '@shopify/react-native-skia';
 
 export default function CameraScreen() {
   const { hasPermission, requestPermission } = useCameraPermission();
