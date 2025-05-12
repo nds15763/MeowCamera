@@ -24,7 +24,7 @@ export default function CameraScreen() {
   // Handle captured frame
   const handleFrameCaptured = useCallback((frameData: string) => {
     // Just log the base64 preview of the frame to console
-    console.log('Captured frame data:', frameData.substring(0, 30) + '...');
+    console.log('Captured frame data:', frameData);
     Alert.alert('Frame captured!', 'Frame data logged to console');
     // Reset the capture flag
     setShouldCapture(false);
