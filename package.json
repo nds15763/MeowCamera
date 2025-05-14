@@ -38,6 +38,7 @@
     "expo-web-browser": "~14.1.6",
     "https-browserify": "^1.0.0",
     "node-libs-react-native": "^1.2.1",
+    "openai": "^4.98.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "react": "19.0.0",
