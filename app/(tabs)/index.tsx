@@ -62,6 +62,16 @@ export default function HomeScreen() {
           <ThemedText style={styles.cameraButtonText}>Open Camera</ThemedText>
         </TouchableOpacity>
       </ThemedView>
+      
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">猫叫声检测测试</ThemedText>
+        <TouchableOpacity 
+          style={[styles.cameraButton, { backgroundColor: '#FF9800' }]}
+          onPress={() => router.push('../testaudio')}
+        >
+          <ThemedText style={styles.cameraButtonText}>声音检测测试</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
     </ParallaxScrollView>
   );
 }

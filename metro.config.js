@@ -11,7 +11,7 @@ const extraNodeModules = {
   http: require.resolve('stream-http'),
   https: require.resolve('https-browserify'),
   os: require.resolve('os-browserify/browser'),
-  net: require.resolve('react-native-tcp'),
+  net: require.resolve('react-native-tcp-socket'),
   fs: require.resolve('react-native-level-fs'),
   path: require.resolve('path-browserify'),
   // Add empty implementation for tls and other required Node modules
