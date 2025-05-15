@@ -1,13 +1,16 @@
-import { Image } from 'expo-image';
-import { router } from 'expo-router';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
-
 import { HelloWave } from '@/components/HelloWave';
+import { LoginForm } from '@/components/LoginForm';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useAuth } from '@/contexts/auth';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function HomeScreen() {
+  const { user } = useAuth();
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -17,71 +20,46 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
       
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Camera Demo</ThemedText>
-        <TouchableOpacity 
-          style={styles.cameraButton}
-          onPress={() => router.push('../cameraScreen')}
-        >
-          <ThemedText style={styles.cameraButtonText}>Open Camera</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-      
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">猫叫声检测测试</ThemedText>
-        <TouchableOpacity 
-          style={[styles.cameraButton, { backgroundColor: '#FF9800' }]}
-          onPress={() => router.push('../testaudio')}
-        >
-          <ThemedText style={styles.cameraButtonText}>声音检测测试</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-      
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">猫咪智能相机</ThemedText>
-        <TouchableOpacity 
-          style={[styles.cameraButton, { backgroundColor: '#E53935' }]}
-          onPress={() => router.push('../MeowCameraScreen')}
-        >
-          <ThemedText style={styles.cameraButtonText}>启动猫咪相机</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
+      {!user ? (
+        <LoginForm />
+      ) : (
+        <>
+          <ThemedView style={styles.titleContainer}>
+            <ThemedText type="title">Welcome!</ThemedText>
+            <HelloWave />
+          </ThemedView>
+          <ThemedView style={styles.stepContainer}>
+            <ThemedText type="subtitle">Camera Demo</ThemedText>
+            <TouchableOpacity 
+              style={styles.cameraButton}
+              onPress={() => router.push('../cameraScreen')}
+            >
+              <ThemedText style={styles.cameraButtonText}>Open Camera</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+          
+          <ThemedView style={styles.stepContainer}>
+            <ThemedText type="subtitle">猫叫声检测测试</ThemedText>
+            <TouchableOpacity 
+              style={[styles.cameraButton, { backgroundColor: '#FF9800' }]}
+              onPress={() => router.push('../testaudio')}
+            >
+              <ThemedText style={styles.cameraButtonText}>声音检测测试</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+          
+          <ThemedView style={styles.stepContainer}>
+            <ThemedText type="subtitle">猫咪智能相机</ThemedText>
+            <TouchableOpacity 
+              style={[styles.cameraButton, { backgroundColor: '#E53935' }]}
+              onPress={() => router.push('../MeowCameraScreen')}
+            >
+              <ThemedText style={styles.cameraButtonText}>启动猫咪相机</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        </>
+      )}
     </ParallaxScrollView>
   );
 }

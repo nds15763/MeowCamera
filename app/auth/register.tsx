@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, View, TextInput, Alert } from 'react-native';
-import { router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useAuth } from '@/contexts/auth';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, TextInput } from 'react-native-paper';
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, updateProfile } = useAuth();
 
   const handleRegister = async () => {
     if (!email || !password) {
@@ -24,11 +26,18 @@ export default function RegisterScreen() {
     
     setLoading(true);
     try {
+      // Sign up with email and password
       const { error } = await signUp(email, password);
       if (error) throw error;
+      
+      // If username is provided, we'll update the profile after email verification
+      const message = username 
+        ? 'Please check your email for verification instructions. Your username will be set after verification.'
+        : 'Please check your email for verification instructions.';
+      
       Alert.alert(
         'Registration Successful', 
-        'Please check your email for verification instructions.',
+        message,
         [{ text: 'OK', onPress: () => router.push('./login') }]
       );
     } catch (error: any) {
@@ -45,30 +54,44 @@ export default function RegisterScreen() {
       <View style={styles.formContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          label="Email"
+          left={<TextInput.Icon icon="email" />}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          mode="outlined"
         />
         
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          label="Password"
+          left={<TextInput.Icon icon="lock" />}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          mode="outlined"
         />
         
-        <TouchableOpacity 
-          style={styles.button} 
+        <TextInput
+          style={styles.input}
+          label="Username (optional)"
+          left={<TextInput.Icon icon="account" />}
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
+          mode="outlined"
+        />
+        
+        <Button
+          mode="contained"
+          style={styles.button}
           onPress={handleRegister}
           disabled={loading}
+          loading={loading}
         >
-          <ThemedText style={styles.buttonText}>
-            {loading ? 'Loading...' : 'Register'}
-          </ThemedText>
-        </TouchableOpacity>
+          Register
+        </Button>
         
         <View style={styles.footer}>
           <ThemedText>Already have an account? </ThemedText>

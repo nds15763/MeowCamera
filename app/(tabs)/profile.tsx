@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useAuth } from '@/contexts/auth';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Image, StyleSheet, View } from 'react-native';
+import { Button, TextInput } from 'react-native-paper';
 
 export default function ProfileScreen() {
-  const { user, signOut } = useAuth();
+  const { user, userProfile, signOut, updateProfile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState<{ email: string | null } | null>(null);
+  const [username, setUsername] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setUserData({ email: user.email || null });
+    if (userProfile) {
+      setUsername(userProfile.username || '');
     }
-  }, [user]);
+  }, [userProfile]);
 
   const handleSignOut = async () => {
     setLoading(true);
@@ -27,7 +30,21 @@ export default function ProfileScreen() {
     }
   };
 
-  if (!userData) {
+  const handleUpdateProfile = async () => {
+    setUpdateLoading(true);
+    try {
+      const { error } = await updateProfile({ username });
+      if (error) throw error;
+      setIsEditing(false);
+      Alert.alert('Success', 'Profile updated successfully');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'An error occurred while updating profile');
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  if (!user || !userProfile) {
     return (
       <ThemedView style={[styles.container, styles.loading]}>
         <ActivityIndicator size="large" color="#4630EB" />
@@ -39,20 +56,77 @@ export default function ProfileScreen() {
     <ThemedView style={styles.container}>
       <ThemedText type="title" style={styles.header}>Profile</ThemedText>
       
-      <View style={styles.infoContainer}>
-        <ThemedText type="subtitle">Email</ThemedText>
-        <ThemedText style={styles.infoText}>{userData.email}</ThemedText>
+      <View style={styles.avatarContainer}>
+        <Image 
+          source={require('@/assets/images/cat-avatar.png')} 
+          style={styles.avatar}
+        />
       </View>
       
-      <TouchableOpacity 
-        style={styles.button} 
+      <View style={styles.infoContainer}>
+        <ThemedText type="subtitle">Email</ThemedText>
+        <ThemedText style={styles.infoText}>{user.email}</ThemedText>
+        
+        <View style={styles.usernameContainer}>
+          <ThemedText type="subtitle">Username</ThemedText>
+          {isEditing ? (
+            <View style={styles.editContainer}>
+              <TextInput
+                style={styles.input}
+                value={username}
+                onChangeText={setUsername}
+                mode="outlined"
+                autoCapitalize="none"
+              />
+              <View style={styles.editButtons}>
+                <Button 
+                  mode="contained" 
+                  onPress={handleUpdateProfile}
+                  loading={updateLoading}
+                  disabled={updateLoading}
+                  style={styles.saveButton}
+                >
+                  Save
+                </Button>
+                <Button 
+                  mode="outlined" 
+                  onPress={() => {
+                    setIsEditing(false);
+                    setUsername(userProfile.username || '');
+                  }}
+                  disabled={updateLoading}
+                  style={styles.cancelButton}
+                >
+                  Cancel
+                </Button>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.usernameRow}>
+              <ThemedText style={styles.infoText}>
+                {userProfile.username || 'Not set'}
+              </ThemedText>
+              <Button 
+                mode="text" 
+                onPress={() => setIsEditing(true)}
+                style={styles.editButton}
+              >
+                Edit
+              </Button>
+            </View>
+          )}
+        </View>
+      </View>
+      
+      <Button
+        mode="contained"
+        style={styles.button}
         onPress={handleSignOut}
         disabled={loading}
+        loading={loading}
       >
-        <ThemedText style={styles.buttonText}>
-          {loading ? 'Loading...' : 'Sign Out'}
-        </ThemedText>
-      </TouchableOpacity>
+        Sign Out
+      </Button>
     </ThemedView>
   );
 }
@@ -67,8 +141,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
-    marginBottom: 30,
+    marginBottom: 20,
     textAlign: 'center',
+  },
+  avatarContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
   infoContainer: {
     marginBottom: 20,
@@ -77,12 +160,38 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 16,
   },
-  button: {
-    backgroundColor: '#4630EB',
-    padding: 15,
-    borderRadius: 8,
+  usernameContainer: {
+    marginTop: 15,
+  },
+  usernameRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  editContainer: {
+    marginTop: 5,
+  },
+  input: {
+    marginBottom: 10,
+  },
+  editButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  saveButton: {
+    flex: 1,
+    marginRight: 5,
+  },
+  cancelButton: {
+    flex: 1,
+    marginLeft: 5,
+  },
+  editButton: {
+    marginLeft: 10,
+  },
+  button: {
     marginTop: 20,
+    paddingVertical: 8,
   },
   buttonText: {
     color: 'white',

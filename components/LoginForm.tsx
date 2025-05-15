@@ -1,53 +1,57 @@
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { useAuth } from '@/contexts/auth';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
+import { useAuth } from "@/contexts/auth";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Button, TextInput } from "react-native-paper";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
 
-export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const { signIn, signInWithGoogle } = useAuth();
 
-  const handleLogin = async () => {
+  const handleEmailLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+      Alert.alert("Error", "Please enter email and password");
       return;
     }
-    
+
     setLoading(true);
     try {
       const { error } = await signIn(email, password);
       if (error) throw error;
       // Navigation will be handled by auth state change in _layout.tsx
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'An error occurred during login');
+      Alert.alert("Error", error.message || "An error occurred during login");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    setGoogleLoading(true);
+    setLoading(true);
     try {
       const { error } = await signInWithGoogle();
       if (error) throw error;
       // Navigation will be handled by auth state change in _layout.tsx
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'An error occurred during Google login');
+      Alert.alert(
+        "Error",
+        error.message || "An error occurred during Google login"
+      );
     } finally {
-      setGoogleLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.header}>Login</ThemedText>
-      
+      <ThemedText type="title" style={styles.header}>
+        Welcome to Smart Camera
+      </ThemedText>
+
       <View style={styles.formContainer}>
         <TextInput
           style={styles.input}
@@ -59,7 +63,7 @@ export default function LoginScreen() {
           keyboardType="email-address"
           mode="outlined"
         />
-        
+
         <TextInput
           style={styles.input}
           label="Password"
@@ -69,37 +73,36 @@ export default function LoginScreen() {
           secureTextEntry
           mode="outlined"
         />
-        
+
         <Button
           mode="contained"
           style={styles.button}
-          onPress={handleLogin}
+          onPress={handleEmailLogin}
           disabled={loading}
           loading={loading}
         >
           Login with Email
         </Button>
-        
+
         <View style={styles.divider}>
           <View style={styles.dividerLine} />
           <ThemedText style={styles.dividerText}>OR</ThemedText>
           <View style={styles.dividerLine} />
         </View>
-        
+
         <Button
           mode="outlined"
           style={styles.googleButton}
           icon="google"
           onPress={handleGoogleLogin}
-          disabled={googleLoading}
-          loading={googleLoading}
+          disabled={loading}
         >
           Login with Google
         </Button>
-        
+
         <View style={styles.footer}>
           <ThemedText>Don&apos;t have an account? </ThemedText>
-          <TouchableOpacity onPress={() => router.push('./register')}>
+          <TouchableOpacity onPress={() => router.push("/auth/register")}>
             <ThemedText style={styles.link}>Register</ThemedText>
           </TouchableOpacity>
         </View>
@@ -112,14 +115,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   header: {
     marginBottom: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   formContainer: {
-    width: '100%',
+    width: "100%",
   },
   input: {
     marginBottom: 15,
@@ -133,25 +136,25 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 20,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ddd',
+    backgroundColor: "#ddd",
   },
   dividerText: {
     marginHorizontal: 10,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 20,
   },
   link: {
-    color: '#4630EB',
-    fontWeight: 'bold',
+    color: "#4630EB",
+    fontWeight: "bold",
   },
 });
