@@ -72,6 +72,16 @@ export default function HomeScreen() {
           <ThemedText style={styles.cameraButtonText}>声音检测测试</ThemedText>
         </TouchableOpacity>
       </ThemedView>
+      
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">猫咪智能相机</ThemedText>
+        <TouchableOpacity 
+          style={[styles.cameraButton, { backgroundColor: '#E53935' }]}
+          onPress={() => router.push('../MeowCameraScreen')}
+        >
+          <ThemedText style={styles.cameraButtonText}>启动猫咪相机</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
     </ParallaxScrollView>
   );
 }

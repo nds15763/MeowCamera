@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Button, Card, Title, useTheme } from 'react-native-paper';
 import { useAudioRecorder } from '@siteed/expo-audio-studio';
+import React, { useEffect, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, Card, Title, useTheme } from 'react-native-paper';
 import MeowDetector, { MeowDetectorRef } from '../lib/meowDetector';
 import { AudioFeatures } from '../types/audioTypes';
 

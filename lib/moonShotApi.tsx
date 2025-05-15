@@ -130,6 +130,39 @@ export class MoonShotService {
     return MoonShotService.enqueue(() => this._analyzeWithCustomPrompt(imageBase64, audioFeatures, systemPrompt, userPrompt, contextData));
   }
   
+  /**
+   * 分析猫叫声和图像
+   * @param imageBase64 图像的base64编码
+   * @param audioFeatures 音频特征
+   * @returns 分析结果
+   */
+  async analyzeMeow(
+    imageBase64: string,
+    audioFeatures: AudioFeatures
+  ): Promise<ApiResponse> {
+    
+    // 为猫叫分析定制的系统提示词
+    const systemPrompt = `你是一个专门分析猫咪的AI助手。你需要分析提供的图像和音频特征，判断图像中是否有猫咪，并给出相应分析。
+如果图像中有猫咪，请根据猫咪的外貌特征、品种习性、所处环境、猜测猫咪最有可能的情绪状态，以及它最有可能想表达的含义，用拟人的口吻说一句短语，用英语`
+    
+    // 用户提示词，包含音频特征数据
+    const userPrompt = `请分析这张图片，判断是否有猫咪，并结合以下音频特征数据进行分析：
+音量(RMS): ${audioFeatures.amplitude?.toFixed(4)}
+频谱中心: ${audioFeatures.spectralCentroidMean?.toFixed(2)} Hz
+零交叉率: ${audioFeatures.zeroCrossingRateMean?.toFixed(4)}
+音高: ${audioFeatures.pitchMean?.toFixed(2)} Hz
+
+请分析并给出以下JSON格式的回复：
+{
+  "is_meow": true/false, // 图片中是否有猫咪
+  "most_likely_meaning":"" // 最可能想表达的情感，一句短语
+  "confidence":0.xx // 本次判断的置信度
+}`;
+    
+    // 调用通用分析方法
+    return this.analyzeWithCustomPrompt(imageBase64, audioFeatures, systemPrompt, userPrompt);
+  }
+  
 
   /**
    * 使用自定义提示词的API调用逻辑（私有）
@@ -189,9 +222,19 @@ export class MoonShotService {
           throw new Error('API返回结果为空');
         }
 
-        const result = JSON.parse(content);
-        console.log('API响应结果:', result);
-        return result;
+        // 解析JSON结果
+        const rawResult = JSON.parse(content);
+        console.log('API原始响应结果:', rawResult);
+        
+        // 确保返回结果符合MeowAIModelResponse接口
+        const formattedResult: MeowAIModelResponse = {
+          is_meow: rawResult.is_meow ?? false,
+          most_likely_meaning: rawResult.most_likely_meaning ?? "",
+          confidence: rawResult.confidence || 0.5
+        };
+        
+        console.log('格式化后的响应结果:', formattedResult);
+        return formattedResult;
       } catch (error) {
         console.error('解析API返回结果失败:', error);
         throw error;
@@ -201,6 +244,7 @@ export class MoonShotService {
       throw error;
     }
   }
-
-
 }
+
+// 创建一个MoonShotService实例并导出，方便直接使用
+export const moonShotApi = new MoonShotService();

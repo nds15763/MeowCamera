@@ -26,6 +26,7 @@ export default function RootLayout() {
           <Stack.Screen name="auth" options={{ headerShown: false }} />
           <Stack.Screen name="cameraScreen" options={{ headerShown: true }} />
           <Stack.Screen name="testaudio" options={{ headerShown: true, title: '猫叫声检测测试' }} />
+          <Stack.Screen name="MeowCameraScreen" options={{ headerShown: false, title: '猫咪相机' }} />
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="auto" />
