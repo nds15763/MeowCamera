@@ -58,6 +58,16 @@ export default function HomeScreen() {
               <ThemedText style={styles.cameraButtonText}>启动猫咪相机</ThemedText>
             </TouchableOpacity>
           </ThemedView>
+          
+          <ThemedView style={styles.stepContainer}>
+            <ThemedText type="subtitle">猫咪情绪表情</ThemedText>
+            <TouchableOpacity 
+              style={[styles.cameraButton, { backgroundColor: '#EF7C8E' }]}
+              onPress={() => router.push('../EmotionSelectorScreen')}
+            >
+              <ThemedText style={styles.cameraButtonText}>查看猫咪情绪</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
         </>
       )}
     </ParallaxScrollView>
