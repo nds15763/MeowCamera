@@ -31,8 +31,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  // Fetch user profile data
-  const fetchUserProfile = async (userId: string) => {
+  // Helper function to wait for specified milliseconds
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  // Fetch user profile data with retry mechanism
+  const fetchUserProfile = async (userId: string, retryCount = 0, maxRetries = 10) => {
     try {
       // Try to get the user profile
       const { data, error } = await supabase
@@ -59,6 +62,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .single();
           
         if (createError) {
+          // For network errors in profile creation, retry
+          if (createError.message?.includes('Network request failed') && retryCount < maxRetries) {
+            console.log(`Network error creating profile, retrying in 3 seconds... (Attempt ${retryCount + 1}/${maxRetries})`);
+            await delay(3000); // Wait 3 seconds before retry
+            return fetchUserProfile(userId, retryCount + 1, maxRetries);
+          }
           console.error('Error creating user profile:', createError);
           return null;
         }
@@ -66,12 +75,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('New profile created:', newProfile);
         return newProfile as UserProfile;
       } else if (error) {
+        // For network errors, retry the request
+        if (error.message?.includes('Network request failed') && retryCount < maxRetries) {
+          console.log(`Network error fetching profile, retrying in 3 seconds... (Attempt ${retryCount + 1}/${maxRetries})`);
+          await delay(3000); // Wait 3 seconds before retry
+          return fetchUserProfile(userId, retryCount + 1, maxRetries);
+        }
         console.error('Error fetching user profile:', error);
         return null;
       }
       
       return data as UserProfile;
-    } catch (error) {
+    } catch (error: any) {
+      // For network errors in the catch block, retry
+      if (error.message?.includes('Network request failed') && retryCount < maxRetries) {
+        console.log(`Network error in catch block, retrying in 3 seconds... (Attempt ${retryCount + 1}/${maxRetries})`);
+        await delay(3000); // Wait 3 seconds before retry
+        return fetchUserProfile(userId, retryCount + 1, maxRetries);
+      }
       console.error('Error in fetchUserProfile:', error);
       return null;
     }
