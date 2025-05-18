@@ -16,64 +16,38 @@ export default function HomeScreen() {
   const [emotionModalVisible, setEmotionModalVisible] = useState(false);
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      
-      {!user ? (
-        <LoginForm />
-      ) : (
-        <>
-          <ThemedView style={styles.titleContainer}>
-            <ThemedText type="title">Welcome!</ThemedText>
-            <HelloWave />
-          </ThemedView>
-          {/* <ThemedView style={styles.stepContainer}>
-            <ThemedText type="subtitle">Camera Demo</ThemedText>
-            <TouchableOpacity 
-              style={styles.cameraButton}
-              onPress={() => router.push('../cameraScreen')}
-            >
-              <ThemedText style={styles.cameraButtonText}>Open Camera</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-          
-          <ThemedView style={styles.stepContainer}>
-            <ThemedText type="subtitle">猫叫声检测测试</ThemedText>
-            <TouchableOpacity 
-              style={[styles.cameraButton, { backgroundColor: '#FF9800' }]}
-              onPress={() => router.push('../testaudio')}
-            >
-              <ThemedText style={styles.cameraButtonText}>声音检测测试</ThemedText>
-            </TouchableOpacity>
-          </ThemedView> */}
-          
-          <ThemedView style={styles.stepContainer}>
-            <ThemedText type="subtitle">猫咪智能相机</ThemedText>
-            <TouchableOpacity 
-              style={[styles.cameraButton, { backgroundColor: '#E53935' }]}
-              onPress={() => router.push('../MeowCameraScreen')}
-            >
-              <ThemedText style={styles.cameraButtonText}>启动猫咪相机</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-          
-          <ThemedView style={styles.stepContainer}>
-            <ThemedText type="subtitle">猫咪情绪表情</ThemedText>
-            <TouchableOpacity 
-              style={[styles.cameraButton, { backgroundColor: '#EF7C8E' }]}
-              onPress={() => router.push('../EmotionSelectorScreen')}
-            >
-              <ThemedText style={styles.cameraButtonText}>查看猫咪情绪</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-        </>
-      )}
+    <ThemedView style={{ flex: 1 }}>
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+        headerImage={
+          <Image
+            source={require('@/assets/images/partial-react-logo.png')}
+            style={styles.reactLogo}
+          />
+        }>
+        
+        {!user ? (
+          <LoginForm />
+        ) : (
+          <>
+            <ThemedView style={styles.titleContainer}>
+              <ThemedText type="title">Welcome!</ThemedText>
+              <HelloWave />
+            </ThemedView>
+            
+            <ThemedView style={styles.stepContainer}>
+              <ThemedText type="subtitle">猫咪智能相机</ThemedText>
+              <TouchableOpacity 
+                style={[styles.cameraButton, { backgroundColor: '#E53935' }]}
+                onPress={() => router.push('../MeowCameraScreen')}
+              >
+                <ThemedText style={styles.cameraButtonText}>启动猫咪相机</ThemedText>
+              </TouchableOpacity>
+            </ThemedView>
+            
+          </>
+        )}
+      </ParallaxScrollView>
       
       {/* Emotion Button and Modal */}
       <EmotionButton 
@@ -84,7 +58,7 @@ export default function HomeScreen() {
         visible={emotionModalVisible} 
         onClose={() => setEmotionModalVisible(false)} 
       />
-    </ParallaxScrollView>
+    </ThemedView>
   );
 }
 
