@@ -230,8 +230,11 @@ export class MeowDetectorModule {
    * 停止监听
    */
   async stopListening(): Promise<void> {
+    console.log('MeowDetectorModule.stopListening 开始执行...');
+    
     // 清除定时器
     if (this.timer) {
+      console.log('清除分析定时器');
       clearInterval(this.timer);
       this.timer = null;
     }
@@ -239,17 +242,57 @@ export class MeowDetectorModule {
     // 停止录音
     if (this.recording) {
       try {
+        console.log('停止并卸载录音实例...');
         await this.recording.stopAndUnloadAsync();
+        console.log('录音实例已成功卸载');
       } catch (error) {
         console.error('停止录音失败:', error);
+      } finally {
+        // 无论成功失败，都确保引用被清除
+        this.recording = null;
       }
-      this.recording = null;
+    } else {
+      console.log('没有活动的录音实例需要停止');
     }
     
+    // 重置状态
     this.state = MeowDetectorState.Idle;
     console.log('停止监听猫叫声', Date.now());
     if (this.config.onStateChange) {
       this.config.onStateChange(this.state);
+    }
+  }
+  
+  /**
+   * 销毁单例实例
+   * 用于完全清理所有资源，应在组件卸载时调用
+   */
+  public static async destroy(): Promise<void> {
+    if (MeowDetectorModule.instance) {
+      console.log('销毁MeowDetectorModule单例实例');
+      
+      // 停止定时器
+      if (MeowDetectorModule.instance.timer) {
+        clearInterval(MeowDetectorModule.instance.timer);
+        MeowDetectorModule.instance.timer = null;
+      }
+      
+      // 停止并卸载录音
+      if (MeowDetectorModule.instance.recording) {
+        try {
+          console.log('销毁录音实例...');
+          await MeowDetectorModule.instance.recording.stopAndUnloadAsync();
+          console.log('录音实例已成功销毁');
+        } catch (e) {
+          console.error('销毁录音实例时出错:', e);
+        } finally {
+          MeowDetectorModule.instance.recording = null;
+        }
+      }
+      
+      // 重置单例实例
+      MeowDetectorModule.instance = null;
+      console.log('MeowDetectorModule单例实例已销毁');
     }
   }
 

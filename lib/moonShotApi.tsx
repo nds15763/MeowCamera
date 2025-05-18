@@ -217,6 +217,7 @@ export class MoonShotService {
 
       // 返回处理后的结果
       try {
+        console.log('completion:',completion)
         const content = completion.choices[0]?.message?.content;
         if (!content) {
           throw new Error('API返回结果为空');

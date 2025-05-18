@@ -91,8 +91,11 @@ const MeowDetector = forwardRef<MeowDetectorRef, MeowDetectorProps>(({
       if (isListening) {
         stopListening();
       }
-      // 单例模式下不需要置空，因为可能其他地方还在使用该实例
-      // detectorModuleRef.current = null;
+      
+      // 销毁单例实例，确保完全清理所有资源
+      MeowDetectorModule.destroy().catch(e => {
+        console.error('销毁MeowDetectorModule实例时出错:', e);
+      });
     };
   }, []); // 移除依赖项列表中的isListening和onMeowDetected，避免重复初始化
 

@@ -1,3 +1,5 @@
+import EmotionButton from '@/components/EmotionButton';
+import EmotionSelectorModal from '@/components/EmotionSelectorModal';
 import { HelloWave } from '@/components/HelloWave';
 import { LoginForm } from '@/components/LoginForm';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -6,10 +8,12 @@ import { ThemedView } from '@/components/ThemedView';
 import { useAuth } from '@/contexts/auth';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function HomeScreen() {
   const { user } = useAuth();
+  const [emotionModalVisible, setEmotionModalVisible] = useState(false);
 
   return (
     <ParallaxScrollView
@@ -29,7 +33,7 @@ export default function HomeScreen() {
             <ThemedText type="title">Welcome!</ThemedText>
             <HelloWave />
           </ThemedView>
-          <ThemedView style={styles.stepContainer}>
+          {/* <ThemedView style={styles.stepContainer}>
             <ThemedText type="subtitle">Camera Demo</ThemedText>
             <TouchableOpacity 
               style={styles.cameraButton}
@@ -47,7 +51,7 @@ export default function HomeScreen() {
             >
               <ThemedText style={styles.cameraButtonText}>声音检测测试</ThemedText>
             </TouchableOpacity>
-          </ThemedView>
+          </ThemedView> */}
           
           <ThemedView style={styles.stepContainer}>
             <ThemedText type="subtitle">猫咪智能相机</ThemedText>
@@ -70,6 +74,16 @@ export default function HomeScreen() {
           </ThemedView>
         </>
       )}
+      
+      {/* Emotion Button and Modal */}
+      <EmotionButton 
+        style={styles.emotionButton} 
+        onPress={() => setEmotionModalVisible(true)} 
+      />
+      <EmotionSelectorModal 
+        visible={emotionModalVisible} 
+        onClose={() => setEmotionModalVisible(false)} 
+      />
     </ParallaxScrollView>
   );
 }
@@ -101,5 +115,10 @@ const styles = StyleSheet.create({
   cameraButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  emotionButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
   },
 });

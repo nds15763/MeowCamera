@@ -11,14 +11,14 @@
 import { Audio } from 'expo-av';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    AppState,
-    AppStateStatus,
-    Dimensions,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  AppState,
+  AppStateStatus,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { emotionCategories, emotions } from '../config/emotions';
 import { Emotion, EmotionCategory } from '../types/emotion';
@@ -185,7 +185,7 @@ export default function EmotionSelector() {
 
 const styles = StyleSheet.create({
   container: {
-    height: '50%', // Half-screen height
+    height: '100%', // Half-screen height
     width: '100%',
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,

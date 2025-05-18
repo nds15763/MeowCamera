@@ -1,3 +1,5 @@
+import EmotionButton from '@/components/EmotionButton';
+import EmotionSelectorModal from '@/components/EmotionSelectorModal';
 import { useAudioRecorder } from '@siteed/expo-audio-studio';
 import { Stack, router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -37,6 +39,9 @@ export default function MeowCameraScreen() {
   const [audioFeatures, setAudioFeatures] = useState<AudioFeatures | null>(null);
   const [waveformData, setWaveformData] = useState<number[]>(Array(30).fill(0.1));
   const detectorRef = useRef<MeowDetectorRef>(null);
+  
+  // 表情选择器状态
+  const [emotionModalVisible, setEmotionModalVisible] = useState(false);
   
   // 音频录制器
   const { startRecording, stopRecording } = useAudioRecorder();
@@ -174,21 +179,39 @@ export default function MeowCameraScreen() {
   // 停止录音和检测
   const stopAudioDetection = useCallback(() => {
     console.log('停止录音和检测...');
-    detectorRef.current?.stopListening();
-    if (typeof stopRecording === 'function') {
-      stopRecording();
+    
+    // 确保停止MeowDetector监听
+    if (detectorRef.current) {
+      console.log('停止MeowDetector监听');
+      detectorRef.current.stopListening();
     }
+    
+    // 确保停止录音
+    if (typeof stopRecording === 'function') {
+      console.log('调用stopRecording函数');
+      try {
+        stopRecording();
+      } catch (error) {
+        console.error('停止录音时出错:', error);
+      }
+    }
+    
+    // 重置状态
     setIsRecording(false);
+    setIsMeowDetected(false);
+    setWaveformData(Array(30).fill(0.1));
+    
+    // 强制进行垃圾回收（仅建议，不保证立即执行）
+    if (global.gc) {
+      try {
+        global.gc();
+      } catch (e) {
+        console.log('无法强制垃圾回收');
+      }
+    }
   }, [stopRecording]);
   
-  // 切换录音和检测状态
-  const toggleRecording = useCallback(() => {
-    if (isRecording) {
-      stopAudioDetection();
-    } else {
-      startAudioDetection();
-    }
-  }, [isRecording, startAudioDetection, stopAudioDetection]);
+  // 不再需要切换功能，只保留开始功能
   
   // 监听应用状态变化
   useEffect(() => {
@@ -204,6 +227,13 @@ export default function MeowCameraScreen() {
         setTimeout(() => {
           setIsCameraActive(true);
         }, 500);
+      } else if (
+        appState.current.match(/active/) && 
+        (nextAppState === 'background' || nextAppState === 'inactive')
+      ) {
+        console.log('App has gone to the background!');
+        // 应用进入后台，停止录音和检测
+        stopAudioDetection();
       }
       
       appState.current = nextAppState;
@@ -212,7 +242,7 @@ export default function MeowCameraScreen() {
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [stopAudioDetection]);
   
   // 请求相机权限
   useEffect(() => {
@@ -224,11 +254,20 @@ export default function MeowCameraScreen() {
   // 组件卸载时停止录音和检测
   useEffect(() => {
     return () => {
-      if (isRecording) {
-        stopAudioDetection();
-      }
+      // 无论 isRecording 状态如何，都确保停止录音和清理资源
+      console.log('组件卸载，清理录音资源...');
+      stopAudioDetection();
+      
+      // 确保MeowDetectorModule单例实例被销毁
+      import('../lib/meowDetectorModule').then(module => {
+        module.MeowDetectorModule.destroy().catch((e: Error) => {
+          console.error('销毁MeowDetectorModule实例时出错:', e);
+        });
+      }).catch((e: Error) => {
+        console.error('导入MeowDetectorModule失败:', e);
+      });
     };
-  }, [isRecording, stopAudioDetection]);
+  }, [stopAudioDetection]);
   
   // 如果没有相机权限或设备，显示相应提示
   if (!hasCameraPermission) {
@@ -275,7 +314,7 @@ export default function MeowCameraScreen() {
         isRecording={isRecording}
         isMeowDetected={isMeowDetected}
         waveformData={waveformData}
-        onPress={toggleRecording}
+        onPress={startAudioDetection}
       />
       
       {/* 检测结果列表 */}
@@ -300,17 +339,30 @@ export default function MeowCameraScreen() {
         }
       </ScrollView>
       
-      {/* 底部控制面板 */}
-      <View style={styles.controlsContainer}>
-        <TouchableOpacity
-          style={[styles.recordButton, isRecording ? styles.recordingActive : {}]}
-          onPress={toggleRecording}
-        >
-          <Text style={styles.buttonText}>
-            {isRecording ? '停止检测' : '开始检测'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {/* 灰色遮罩 - 未开始检测时显示 */}
+      {!isRecording && (
+        <View style={styles.overlay}>
+          {/* 底部控制面板 */}
+          <View style={styles.controlsContainer}>
+            <TouchableOpacity
+              style={styles.playButton}
+              onPress={startAudioDetection}
+            >
+              <View style={styles.playIcon} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+      
+      {/* 表情按钮和模态框 */}
+      <EmotionButton 
+        style={styles.emotionButton} 
+        onPress={() => setEmotionModalVisible(true)} 
+      />
+      <EmotionSelectorModal 
+        visible={emotionModalVisible} 
+        onClose={() => setEmotionModalVisible(false)} 
+      />
       
       {/* 隐藏的MeowDetector */}
       <MeowDetector
@@ -322,6 +374,12 @@ export default function MeowCameraScreen() {
 }
 
 const styles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#000',
@@ -360,12 +418,43 @@ const styles = StyleSheet.create({
   },
   controlsContainer: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 0,
+    top: 0,
     left: 0,
     right: 0,
     alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
   },
+  playButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  playIcon: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 22,
+    borderRightWidth: 0,
+    borderBottomWidth: 15,
+    borderTopWidth: 15,
+    borderLeftColor: 'black',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderTopColor: 'transparent',
+    marginLeft: 8, // 稍微向右偏移以使三角形居中
+  },
+  // 保留这些样式用于权限请求界面
   recordButton: {
     backgroundColor: '#4630EB',
     paddingHorizontal: 30,
@@ -382,5 +471,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  emotionButton: {
+    position: 'absolute',
+    bottom: 40,
+    right: 30,
   },
 });

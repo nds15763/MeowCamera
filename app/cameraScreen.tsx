@@ -37,6 +37,7 @@ export default function CameraScreen() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     if (shouldCapture) {
+      // yarn add vision-camera-resize-plugin
       // Get the entire frame as base64 (100% of width/height)
       const result = crop(frame, {
         cropRegion: {
