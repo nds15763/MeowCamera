@@ -58,7 +58,7 @@ export default function ProfileScreen() {
       
       <View style={styles.avatarContainer}>
         <Image 
-          source={require('@/assets/images/cat-avatar.png')} 
+          source={require('@/assets/images/catavatar.png')} 
           style={styles.avatar}
         />
       </View>
