@@ -19,6 +19,7 @@ type AuthContextType = {
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
+  signInWithDiscord: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<{ error: Error | null }>;
   updateProfile: (data: Partial<UserProfile>) => Promise<{ error: Error | null, data: UserProfile | null }>;
 };
@@ -218,6 +219,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const signInWithDiscord = async () => {
+    try {
+      // Sign in with Discord
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'discord',
+        options: {
+          redirectTo: 'smartcamera://auth/callback', // Using the app scheme from app.json
+        }
+      });
+      
+      if (error) return { error };
+      
+      // Profile will be created by the auth state change listener if needed
+      console.log('Discord sign in initiated, profile will be created if needed after successful auth');
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Error in signInWithDiscord:', error);
+      return { error: error as Error };
+    }
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     return { error };
@@ -259,6 +282,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signIn,
     signInWithGoogle,
+    signInWithDiscord,
     signOut,
     updateProfile,
   };

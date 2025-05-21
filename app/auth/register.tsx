@@ -11,7 +11,35 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signUp, updateProfile } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [discordLoading, setDiscordLoading] = useState(false);
+  const { signUp, updateProfile, signInWithGoogle, signInWithDiscord } = useAuth();
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) throw error;
+      // Navigation will be handled by auth state change in _layout.tsx
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'An error occurred during Google login');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleDiscordLogin = async () => {
+    setDiscordLoading(true);
+    try {
+      const { error } = await signInWithDiscord();
+      if (error) throw error;
+      // Navigation will be handled by auth state change in _layout.tsx
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'An error occurred during Discord login');
+    } finally {
+      setDiscordLoading(false);
+    }
+  };
 
   const handleRegister = async () => {
     if (!email || !password) {
@@ -90,7 +118,35 @@ export default function RegisterScreen() {
           disabled={loading}
           loading={loading}
         >
-          Register
+          Register with Email
+        </Button>
+        
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <ThemedText style={styles.dividerText}>OR</ThemedText>
+          <View style={styles.dividerLine} />
+        </View>
+        
+        <Button
+          mode="outlined"
+          style={styles.googleButton}
+          icon="google"
+          onPress={handleGoogleLogin}
+          disabled={googleLoading}
+          loading={googleLoading}
+        >
+          Continue with Google
+        </Button>
+        
+        <Button
+          mode="outlined"
+          style={styles.discordButton}
+          icon="discord"
+          onPress={handleDiscordLogin}
+          disabled={discordLoading}
+          loading={discordLoading}
+        >
+          Continue with Discord
         </Button>
         
         <View style={styles.footer}>
@@ -134,6 +190,29 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ddd',
+  },
+  dividerText: {
+    marginHorizontal: 10,
+  },
+  googleButton: {
+    marginTop: 10,
+    paddingVertical: 8,
+  },
+  discordButton: {
+    marginTop: 10,
+    paddingVertical: 8,
+    backgroundColor: '#5865F2',
+    borderColor: '#5865F2',
   },
   footer: {
     flexDirection: 'row',

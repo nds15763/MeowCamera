@@ -11,7 +11,8 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const { signIn, signInWithGoogle } = useAuth();
+  const [discordLoading, setDiscordLoading] = useState(false);
+  const { signIn, signInWithGoogle, signInWithDiscord } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -41,6 +42,19 @@ export default function LoginScreen() {
       Alert.alert('Error', error.message || 'An error occurred during Google login');
     } finally {
       setGoogleLoading(false);
+    }
+  };
+
+  const handleDiscordLogin = async () => {
+    setDiscordLoading(true);
+    try {
+      const { error } = await signInWithDiscord();
+      if (error) throw error;
+      // Navigation will be handled by auth state change in _layout.tsx
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'An error occurred during Discord login');
+    } finally {
+      setDiscordLoading(false);
     }
   };
 
@@ -97,6 +111,17 @@ export default function LoginScreen() {
           Login with Google
         </Button>
         
+        <Button
+          mode="outlined"
+          style={styles.discordButton}
+          icon="discord"
+          onPress={handleDiscordLogin}
+          disabled={discordLoading}
+          loading={discordLoading}
+        >
+          Login with Discord
+        </Button>
+        
         <View style={styles.footer}>
           <ThemedText>Don&apos;t have an account? </ThemedText>
           <TouchableOpacity onPress={() => router.push('./register')}>
@@ -131,6 +156,12 @@ const styles = StyleSheet.create({
   googleButton: {
     marginTop: 10,
     paddingVertical: 8,
+  },
+  discordButton: {
+    marginTop: 10,
+    paddingVertical: 8,
+    backgroundColor: '#5865F2',
+    borderColor: '#5865F2',
   },
   divider: {
     flexDirection: 'row',
