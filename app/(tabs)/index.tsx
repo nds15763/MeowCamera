@@ -44,6 +44,16 @@ export default function HomeScreen() {
                 <ThemedText style={styles.cameraButtonText}>启动猫咪相机</ThemedText>
               </TouchableOpacity>
             </ThemedView>
+
+            <ThemedView style={styles.stepContainer}>
+              <ThemedText type="subtitle">检测猫叫</ThemedText>
+              <TouchableOpacity 
+                style={[styles.cameraButton, { backgroundColor: '#E53935' }]}
+                onPress={() => router.push('../testDetectionMode')}
+              >
+                <ThemedText style={styles.cameraButtonText}>检测猫叫</ThemedText>
+              </TouchableOpacity>
+            </ThemedView>
             
           </>
         )}
